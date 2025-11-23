@@ -20,8 +20,8 @@ add_custom_target(build_rust ALL
 set(RCLONE_MOUNT_EXT_BIN ${CARGO_TARGET_DIR}/release/rclone-mount-ext)
 
 # Configure files
-configure_file(${CMAKE_SOURCE_DIR}/pkg/lib/systemd/system/rclone-mount-ext@.service.in
-    ${CMAKE_BINARY_DIR}/lib/systemd/system/rclone-mount-ext@.service
+configure_file(${CMAKE_SOURCE_DIR}/pkg/lib/systemd/user/rclone-mount-ext@.service.in
+    ${CMAKE_BINARY_DIR}/lib/systemd/user/rclone-mount-ext@.service
     @ONLY
 )
 configure_file(${CMAKE_SOURCE_DIR}/pkg/bin/rclone-mount-ext-helper.in
@@ -38,6 +38,6 @@ install(PROGRAMS
 
 # Install lib files
 install(FILES
-        ${CMAKE_BINARY_DIR}/lib/systemd/system/rclone-mount-ext@.service
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system
+        ${CMAKE_BINARY_DIR}/lib/systemd/user/rclone-mount-ext@.service
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/user
 )
