@@ -1,0 +1,6 @@
+#! /usr/bin/env bash
+
+target=$(echo "$1"|cut -d '.' -f 1)
+entry="${1#$target.}"
+
+@INSTALL_BIN_DIR@/rclone-mount-ext --rclone-entry "$entry" --secret-target "$target"

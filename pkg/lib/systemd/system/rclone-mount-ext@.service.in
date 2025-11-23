@@ -1,0 +1,9 @@
+[Unit]
+Description=Mount a network volume with rclone
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# %i: target.rclone-entry
+ExecStart=@INSTALL_BIN_DIR@/rclone-mount-ext-helper "%i"
+Restart=on-failure

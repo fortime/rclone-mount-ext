@@ -1,0 +1,39 @@
+# Maintainer: fortime <palfortime@gmail.com>
+
+_pkgbase=rclone-mount-ext
+pkgname=rclone-mount-ext-git
+_pkgver=0.1.0
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='A tool to improve `rclone mount` in sleep'
+url='https://github.com/fortime/rclone-mount-ext'
+source=("git+https://github.com/fortime/rclone-mount-ext")
+arch=('x86_64')
+license=('MIT')
+makedepends=('cargo' 'git' 'cmake')
+depends=('dbus')
+sha256sums=(SKIP)
+
+pkgver() {
+  cd "$srcdir/$_pkgbase"
+  git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+  cd "$_pkgbase"
+  # We use a patched iced_layershell, so we can't use --offline
+  #cargo fetch --offline --target "$(rustc -vV | sed -n 's|host: ||p')"
+  cargo fetch --target "$(rustc -vV | sed -n 's|host: ||p')"
+}
+
+build () {
+  cmake \
+      -D CMAKE_INSTALL_PREFIX=/usr \
+      -B "${srcdir}/build-${_pkgver}" \
+      -S "$srcdir/$_pkgbase"
+  cmake --build "${srcdir}/build-${_pkgver}"
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install "${srcdir}/build-${_pkgver}"
+}
