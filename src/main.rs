@@ -282,7 +282,7 @@ fn mount_point(rclone_entry: &str) -> Result<String> {
 
 async fn force_umount(mount_point: &str) {
     let mut command = Command::new("fusermount3");
-    command.args(&["-uq", mount_point]);
+    command.args(["-uq", mount_point]);
     match command.output().await {
         Ok(o) => {
             tracing::info!("Result of `fusermount3`: {o:?}");
@@ -400,7 +400,7 @@ async fn mount(
 
     let mut command = Command::new("rclone");
     command
-        .args(&[
+        .args([
             "mount",
             "--vfs-cache-mode",
             "full",
@@ -474,7 +474,7 @@ async fn start_sleep_listener(tx: UnboundedSender<Event>) {
                         tracing::info!("About to sleep, umount");
                         // Error means the main loop has exited, there is no need to restart this
                         // listener
-                        if let Err(_) = tx.send(Event::Unmount) {
+                        if tx.send(Event::Unmount).is_err() {
                             return Ok(());
                         };
                     }
@@ -512,7 +512,7 @@ async fn start_unlock_listener(tx: UnboundedSender<Event>) {
                         tracing::info!("Unlocking, mount");
                         // Error means the main loop has exited, there is no need to restart this
                         // listener.
-                        if let Err(_) = tx.send(Event::Mount) {
+                        if tx.send(Event::Mount).is_err() {
                             return Ok(());
                         };
                     }
@@ -540,12 +540,12 @@ async fn run(args: Args) -> Result<()> {
     fn make_sleep_than_retry_cb(tx: UnboundedSender<Event>) -> impl Fn() + Send + Clone + 'static {
         let inflight_retry_mark = Arc::new(AtomicBool::new(false));
         move || {
-            if let Ok(_) = inflight_retry_mark.compare_exchange_weak(
+            if inflight_retry_mark.compare_exchange_weak(
                 false,
                 true,
                 Ordering::SeqCst,
                 Ordering::Relaxed,
-            ) {
+            ).is_ok() {
                 tokio::spawn({
                     let tx = tx.clone();
                     let inflight_retry_mark = inflight_retry_mark.clone();
