@@ -389,12 +389,14 @@ async fn mount(
     mount_point: &str,
     password_entry: &mut PasswordEntry<'_>,
 ) -> Result<RcloneProcess> {
+    // `force_umount` should be run before accessing the folder, otherwise, a error might be
+    // raised.
+    force_umount(mount_point).await;
+
     // create mount_point if not exist
     if !fs::try_exists(mount_point).await? {
         fs::create_dir_all(mount_point).await?;
     }
-
-    force_umount(mount_point).await;
 
     let mut command = Command::new("rclone");
     command
